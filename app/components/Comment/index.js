@@ -10,6 +10,9 @@ const Comment = ({item, commentHandler, editHandler, deleteHandler}) => {
   const onReplyHandler = useCallback(() => {
     commentHandler(item);
   }, [item, commentHandler]);
+  const onDeleteComment = useCallback(() => {
+    deleteHandler(item?.id);
+  }, [deleteHandler, item?.id]);
   return (
     <View style={styles.container}>
       <InitialBox item={get(item, 'user')} />
@@ -33,7 +36,7 @@ const Comment = ({item, commentHandler, editHandler, deleteHandler}) => {
             title="remove"
             style={styles.buttonStyle}
             labelStyle={{color: COLORS.darkGray}}
-            onPress={deleteHandler}
+            onPress={onDeleteComment}
           />
         </View>
       </View>

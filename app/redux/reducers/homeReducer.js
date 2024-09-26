@@ -1,4 +1,5 @@
 import {REHYDRATE} from 'redux-persist';
+import filter from 'lodash/filter';
 import {ADD_USER} from '../../container/AddUser/constants';
 import {
   ADD_COMMENT,
@@ -33,9 +34,14 @@ const homeReducer = (state = initialState, action) => {
         ...state,
         comments: [...state.comments, action.payload],
       };
+    case DELETE_COMMENT:
+      const filteredComment = filter(
+        state?.comments,
+        item => item?.id !== action.payload,
+      );
+      return {...state, comments: filteredComment};
     case ADD_REPLY:
     case EDIT_COMMENT:
-    case DELETE_COMMENT:
     default:
       return state;
   }

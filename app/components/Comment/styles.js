@@ -4,6 +4,8 @@ import {COLORS} from '../../constants';
 
 const styles = StyleSheet.create({
   container: {
+    // flex: 1,
+    // flexWrap: 'wrap',
     flexDirection: 'row',
   },
   buttonStyle: {
@@ -12,7 +14,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   username: {color: COLORS.black, fontSize: 16, fontWeight: '700'},
-  comment: {color: COLORS.black, fontSize: 16},
+  comment: {color: COLORS.black, fontSize: 16, flexWrap: 'wrap'},
 });
 
 export default styles;

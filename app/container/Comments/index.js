@@ -7,6 +7,7 @@ import {
   ScrollView,
   Platform,
   Image,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 
@@ -21,13 +22,14 @@ import styles from './styles';
 import {COLORS} from '../../constants';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
-import {addCommentAction} from './actions';
+import {addCommentAction, deleteCommentAction} from './actions';
 import Comment from '../../components/Comment';
 import closeIcon from '../../asset/images/closeIcon.png';
 
 const Comments = ({navigation, route}) => {
   const users = useSelector(state => state.home.users);
-  const comments = useSelector(state => state.home.comments);
+  const comments = useSelector(state => state.comments.comments);
+  console.log('-----------------------', comments);
   const userId = route?.params?.id;
   const dispatch = useDispatch();
   const inputRef = useRef(null);
@@ -96,16 +98,9 @@ const Comments = ({navigation, route}) => {
     },
     [initialsContainer, activeUserHandler],
   );
-  const onChangeTextHandler = useCallback(
-    inputVal => {
-      setComment({
-        id: uuidv4(),
-        user: activeUser,
-        comment: inputVal,
-      });
-    },
-    [activeUser],
-  );
+  const onChangeTextHandler = useCallback(inputVal => {
+    setComment(inputVal);
+  }, []);
 
   const onSubmitHandler = useCallback(() => {
     let payload;
@@ -124,19 +119,36 @@ const Comments = ({navigation, route}) => {
         id: uuidv4(),
         user: activeUser,
         comment: comment,
+        replies: [],
       };
     }
+    console.log('payload', payload);
     dispatch(addCommentAction(payload));
     setComment('');
     setActiveComment(null);
   }, [comment, dispatch, activeComment, activeUser]);
 
+  const onCrossClickHandler = useCallback(() => {
+    setActiveComment(null);
+  }, []);
+
+  const onDeleteCommentHandler = useCallback(
+    commentId => {
+      dispatch(deleteCommentAction(commentId));
+    },
+    [dispatch],
+  );
+
   const renderComments = ({item}) => {
     return (
       <View>
-        <Comment item={item} commentHandler={replyButtonHandler} />
+        <Comment
+          item={item}
+          commentHandler={replyButtonHandler}
+          deleteHandler={onDeleteCommentHandler}
+        />
         {get(item, 'replies')?.length > 0 && (
-          <View style={{marginLeft: 60}}>
+          <View style={{flex: 1, marginLeft: 60}}>
             <FlatList
               data={get(item, 'replies')}
               renderItem={renderComments}
@@ -160,7 +172,8 @@ const Comments = ({navigation, route}) => {
           renderItem={renderItem}
           keyExtractor={item => item.id}
           horizontal
-          style={styles.flatListContainer}
+          // style={styles.flatListContainer}
+          contentContainerStyle={styles.flatListContainer}
           // extraData={selectedId}
         />
         <FlatList
@@ -173,14 +186,18 @@ const Comments = ({navigation, route}) => {
         />
       </View>
       <View>
-        <View style={styles.activeCommentContainer}>
-          <Text style={styles.activeCommentText}>
-            {get(activeComment, 'comment')}
-          </Text>
-          <TouchableOpacity onPress={() => {}} style={styles.imageContainer}>
-            <Image source={closeIcon} style={styles.image} />
-          </TouchableOpacity>
-        </View>
+        {activeComment && (
+          <View style={styles.activeCommentContainer}>
+            <Text style={styles.activeCommentText}>
+              {get(activeComment, 'comment')}
+            </Text>
+            <TouchableOpacity
+              onPress={onCrossClickHandler}
+              style={styles.imageContainer}>
+              <Image source={closeIcon} style={styles.image} />
+            </TouchableOpacity>
+          </View>
+        )}
         <View style={styles.flexRow}>
           <CustomInput
             ref={inputRef}
