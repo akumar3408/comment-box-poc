@@ -1,4 +1,4 @@
-import {ADD_USER} from '../../container/AddUser/constant';
+import {ADD_USER} from '../../container/AddUser/constants';
 
 const initialState = {
   users: null,

@@ -1,8 +1,15 @@
 import {REHYDRATE} from 'redux-persist';
-import {ADD_USER} from '../../container/AddUser/constant';
+import {ADD_USER} from '../../container/AddUser/constants';
+import {
+  ADD_COMMENT,
+  ADD_REPLY,
+  EDIT_COMMENT,
+  DELETE_COMMENT,
+} from '../../container/Comments/constants';
 
 const initialState = {
   users: [],
+  comments: [],
   data: null,
   isLoading: false,
   error: null,
@@ -21,6 +28,14 @@ const homeReducer = (state = initialState, action) => {
         ...state,
         users: [...state.users, action.payload],
       };
+    case ADD_COMMENT:
+      return {
+        ...state,
+        comments: [...state.comments, action.payload],
+      };
+    case ADD_REPLY:
+    case EDIT_COMMENT:
+    case DELETE_COMMENT:
     default:
       return state;
   }
