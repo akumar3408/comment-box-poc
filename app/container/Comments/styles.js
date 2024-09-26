@@ -7,10 +7,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainerStyle: {
-    flex: 1,
-    justifyContent: 'space-between',
+    flexGrow: 1,
+    // justifyContent: 'space-between',
   },
-  flatListContainer: {flexGrow: 1, marginBottom: 24},
+  flatListContainer: {flexGrow: 0, marginBottom: 24},
   initialsContainer: {
     width: 50,
     height: 50,
@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: COLORS.redAjax,
-    marginHorizontal: 12,
+    marginLeft: 12,
     overflow: 'hidden',
   },
   initialsText: {
@@ -26,7 +26,8 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   activeCommentContainer: {
-    width: 280,
+    // width: 280,
+    // flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginHorizontal: 30,
@@ -42,7 +43,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   flexRow: {
+    // flex: 1,
     flexDirection: 'row',
+    alignSelf: 'flex-end',
   },
   inputStyle: {
     marginHorizontal: 24,
@@ -50,12 +53,15 @@ const styles = StyleSheet.create({
     height: 60,
     alignSelf: 'center',
   },
-  submitButton: {width: 70, marginTop: 12},
+  submitButton: {flex: 1, width: 70, marginTop: 12},
   imageContainer: {
     width: 30,
     height: 30,
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'absolute',
+    right: -5,
+    top: -5,
   },
   image: {
     width: '100%',

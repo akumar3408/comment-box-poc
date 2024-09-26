@@ -16,36 +16,40 @@ import {v4 as uuidv4} from 'uuid';
 
 import get from 'lodash/get';
 import find from 'lodash/find';
+import map from 'lodash/map';
 
 import {initials} from '../../utils/commonMethods';
 import styles from './styles';
 import {COLORS} from '../../constants';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
-import {addCommentAction, deleteCommentAction} from './actions';
+import {
+  addCommentAction,
+  addReplyAction,
+  deleteCommentAction,
+  deleteReplyAction,
+  editCommentAction,
+  editReplyAction,
+} from './actions';
 import Comment from '../../components/Comment';
 import closeIcon from '../../asset/images/closeIcon.png';
 
 const Comments = ({navigation, route}) => {
   const users = useSelector(state => state.home.users);
   const comments = useSelector(state => state.comments.comments);
-  console.log('-----------------------', comments);
+  // console.log('-----------------------', comments);
   const userId = route?.params?.id;
   const dispatch = useDispatch();
   const inputRef = useRef(null);
 
-  const [comment, setComment] = useState({});
+  const [input, setInput] = useState({});
   const [activeComment, setActiveComment] = useState(null);
+  const [editedComment, setEditedComment] = useState(null);
+  const [editedReply, setEditedReply] = useState(null);
 
   const [activeUser, setActiveUser] = useState(
     find(users, item => item?.id === userId),
   );
-
-  const focusInput = () => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  };
 
   const replyButtonHandler = commentVal => {
     setActiveComment(commentVal);
@@ -57,20 +61,6 @@ const Comments = ({navigation, route}) => {
   const activeUserHandler = useCallback(userVal => {
     setActiveUser(userVal);
   }, []);
-  const dummyComment = {
-    id: 'id',
-    user: {id: '123', name: 'Jai Prakash'},
-    time: 'time',
-    comment: 'this is a comment',
-    replies: [
-      {
-        id: 'replyId',
-        user: {id: '123', name: 'Ram Singh'},
-        comment: 'this is a reply',
-        time: '',
-      },
-    ],
-  };
 
   const initialsContainer = useCallback(
     itemVal => {
@@ -90,6 +80,7 @@ const Comments = ({navigation, route}) => {
       return (
         <TouchableOpacity
           activeOpacity={0.8}
+          key={uuidv4()}
           style={initialsContainer(item)}
           onPress={() => activeUserHandler(item)}>
           <Text style={styles.initialsText}>{initials(item?.name)}</Text>
@@ -99,34 +90,57 @@ const Comments = ({navigation, route}) => {
     [initialsContainer, activeUserHandler],
   );
   const onChangeTextHandler = useCallback(inputVal => {
-    setComment(inputVal);
+    setInput(inputVal);
   }, []);
+
+  console.log('---------comments---------', comments);
 
   const onSubmitHandler = useCallback(() => {
     let payload;
     if (activeComment) {
       payload = {
-        ...activeComment,
-        ...{
-          replies: [
-            ...activeComment?.replies,
-            {user: activeUser, id: uuidv4(), comment: comment},
-          ],
+        commentId: activeComment?.id,
+        reply: {
+          comment: input,
+          id: uuidv4(),
+          user: activeUser,
         },
       };
+      dispatch(addReplyAction(payload));
+    } else if (editedReply) {
+      payload = {
+        commentId: editedComment?.id,
+        replyId: editedReply?.id,
+        comment: input,
+      };
+      dispatch(editReplyAction(payload));
+    } else if (editedComment) {
+      // payload = map(comments, item => {
+      //   let updatedItem = item;
+      //   if (item?.id === editedComment?.id) {
+      //     updatedItem.comment = input;
+      //   }
+      //   return updatedItem;
+      // });
+      payload = {
+        commentId: editedComment?.id,
+        comment: input,
+      };
+      dispatch(editCommentAction(payload));
     } else {
       payload = {
         id: uuidv4(),
         user: activeUser,
-        comment: comment,
+        comment: input,
         replies: [],
       };
+      dispatch(addCommentAction(payload));
     }
-    console.log('payload', payload);
-    dispatch(addCommentAction(payload));
-    setComment('');
+    setInput('');
+    setEditedComment(null);
     setActiveComment(null);
-  }, [comment, dispatch, activeComment, activeUser]);
+    setEditedReply(null);
+  }, [activeComment, editedReply, editedComment, input, activeUser, dispatch]);
 
   const onCrossClickHandler = useCallback(() => {
     setActiveComment(null);
@@ -138,50 +152,71 @@ const Comments = ({navigation, route}) => {
     },
     [dispatch],
   );
+  const onDeleteReplyHandler = useCallback(
+    (commentId, replyId) => {
+      dispatch(deleteReplyAction({commentId, replyId}));
+    },
+    [dispatch],
+  );
 
+  const onEditCommentHandler = commentItem => {
+    setEditedComment(commentItem);
+    setInput(commentItem?.comment);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+  const onEditReplyHandler = (commentItem, replyItem) => {
+    setEditedComment(commentItem);
+    setEditedReply(replyItem);
+    setInput(replyItem?.comment);
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
   const renderComments = ({item}) => {
     return (
-      <View>
+      <View style={{marginTop: 12}}>
         <Comment
           item={item}
           commentHandler={replyButtonHandler}
           deleteHandler={onDeleteCommentHandler}
+          editHandler={onEditCommentHandler}
+          activeUser={activeUser}
         />
-        {get(item, 'replies')?.length > 0 && (
-          <View style={{flex: 1, marginLeft: 60}}>
-            <FlatList
-              data={get(item, 'replies')}
-              renderItem={renderComments}
-              keyExtractor={item => item.id}
-              horizontal
-              style={{flexGrow: 1, marginBottom: 24}}
-              // extraData={selectedId}
-            />
-          </View>
-        )}
+        {get(item, 'replies')?.length > 0 &&
+          map(get(item, 'replies'), itemVal => {
+            return (
+              <View key={uuidv4()} style={{marginLeft: 60}}>
+                <Comment
+                  item={itemVal}
+                  editHandler={onEditReplyHandler}
+                  deleteHandler={onDeleteReplyHandler}
+                  activeUser={activeUser}
+                  parentComment={item}
+                />
+              </View>
+            );
+          })}
       </View>
     );
   };
   return (
-    <ScrollView
+    <View
       style={styles.container}
-      contentContainerStyle={styles.contentContainerStyle}>
-      <View style={{marginTop: 12}}>
-        <FlatList
-          data={users}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-          horizontal
-          // style={styles.flatListContainer}
-          contentContainerStyle={styles.flatListContainer}
-          // extraData={selectedId}
-        />
+      // nestedScrollEnabled
+      // contentContainerStyle={styles.contentContainerStyle}
+    >
+      <View style={{flex: 1, marginTop: 12}}>
+        <View style={{flexDirection: 'row'}}>
+          {map(users, item => renderItem({item}))}
+        </View>
         <FlatList
           data={comments}
           renderItem={renderComments}
           keyExtractor={item => item.id}
-          horizontal
-          style={styles.flatListContainer}
+          // horizontal
+          contentContainerStyle={styles.flatListContainer}
           // extraData={selectedId}
         />
       </View>
@@ -201,7 +236,7 @@ const Comments = ({navigation, route}) => {
         <View style={styles.flexRow}>
           <CustomInput
             ref={inputRef}
-            value={comment?.comment}
+            value={input}
             inputStyle={styles.inputStyle}
             onChangeText={onChangeTextHandler}
             placeholder={'Leave your comment'}
@@ -214,7 +249,7 @@ const Comments = ({navigation, route}) => {
           />
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
