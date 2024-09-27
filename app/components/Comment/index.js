@@ -38,7 +38,7 @@ const Comment = ({
   return (
     <View style={styles.container}>
       <InitialBox item={get(item, 'user')} />
-      <View style={{flex: 1}}>
+      <View style={styles.flex1}>
         <Text style={styles.username}>{get(item, 'user.name')}</Text>
         <Text style={styles.comment}>{get(item, 'comment')}</Text>
         <View style={styles.container}>

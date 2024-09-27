@@ -1,14 +1,5 @@
 import React, {useCallback, useState, useRef} from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  ScrollView,
-  Platform,
-  Image,
-  KeyboardAvoidingView,
-} from 'react-native';
+import {View, Text, FlatList, TouchableOpacity, Image} from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 
 import 'react-native-get-random-values';
@@ -37,7 +28,6 @@ import closeIcon from '../../asset/images/closeIcon.png';
 const Comments = ({navigation, route}) => {
   const users = useSelector(state => state.home.users);
   const comments = useSelector(state => state.comments.comments);
-  // console.log('-----------------------', comments);
   const userId = route?.params?.id;
   const dispatch = useDispatch();
   const inputRef = useRef(null);
@@ -93,8 +83,6 @@ const Comments = ({navigation, route}) => {
     setInput(inputVal);
   }, []);
 
-  console.log('---------comments---------', comments);
-
   const onSubmitHandler = useCallback(() => {
     let payload;
     if (activeComment) {
@@ -115,13 +103,6 @@ const Comments = ({navigation, route}) => {
       };
       dispatch(editReplyAction(payload));
     } else if (editedComment) {
-      // payload = map(comments, item => {
-      //   let updatedItem = item;
-      //   if (item?.id === editedComment?.id) {
-      //     updatedItem.comment = input;
-      //   }
-      //   return updatedItem;
-      // });
       payload = {
         commentId: editedComment?.id,
         comment: input,
@@ -187,7 +168,7 @@ const Comments = ({navigation, route}) => {
         {get(item, 'replies')?.length > 0 &&
           map(get(item, 'replies'), itemVal => {
             return (
-              <View key={uuidv4()} style={{marginLeft: 60}}>
+              <View key={uuidv4()} style={styles.replyContainer}>
                 <Comment
                   item={itemVal}
                   editHandler={onEditReplyHandler}
@@ -202,22 +183,16 @@ const Comments = ({navigation, route}) => {
     );
   };
   return (
-    <View
-      style={styles.container}
-      // nestedScrollEnabled
-      // contentContainerStyle={styles.contentContainerStyle}
-    >
-      <View style={{flex: 1, marginTop: 12}}>
-        <View style={{flexDirection: 'row'}}>
+    <View style={styles.container}>
+      <View style={styles.userCommentContainer}>
+        <View style={styles.userContainer}>
           {map(users, item => renderItem({item}))}
         </View>
         <FlatList
           data={comments}
           renderItem={renderComments}
           keyExtractor={item => item.id}
-          // horizontal
           contentContainerStyle={styles.flatListContainer}
-          // extraData={selectedId}
         />
       </View>
       <View>

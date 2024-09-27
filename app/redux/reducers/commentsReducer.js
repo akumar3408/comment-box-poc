@@ -1,7 +1,7 @@
-import {REHYDRATE} from 'redux-persist';
+// import {REHYDRATE} from 'redux-persist';
 import filter from 'lodash/filter';
 import map from 'lodash/map';
-import get from 'lodash/get';
+// import get from 'lodash/get';
 import {
   ADD_COMMENT,
   ADD_REPLY,
@@ -20,12 +20,11 @@ const initialState = {
 
 const homeReducer = (state = initialState, action) => {
   switch (action.type) {
-    case REHYDRATE:
-      // Merge the rehydrated state with the existing state, to ensure nothing is removed
-      return {
-        ...state,
-        ...action.payload?.home, // Merge only if `home` exists in the persisted state
-      };
+    // case REHYDRATE:
+    //   return {
+    //     ...state,
+    //     ...action.payload?.comments,
+    //   };
     case ADD_COMMENT:
       return {
         ...state,
@@ -38,11 +37,6 @@ const homeReducer = (state = initialState, action) => {
       );
       return {...state, comments: filteredComment};
     case DELETE_REPLY:
-      // const replyDeletedComments = filter(
-      //   state?.comments,
-      //   item => item?.id !== action.payload,
-      // );
-      // return {...state, comments: filteredComment};
       const replyDeletedComments = map(state.comments, item => {
         let updatedReplyItem = item;
         if (updatedReplyItem?.id === action.payload.commentId) {
@@ -94,10 +88,6 @@ const homeReducer = (state = initialState, action) => {
             ...editeReplyItem,
             replies: filteredReplies,
           };
-          // updatedAddItem = {
-          //   ...updatedAddItem,
-          //   replies: [...updatedAddItem.replies, ...[action.payload.reply]],
-          // };
         }
         return editeReplyItem;
       });

@@ -8,7 +8,6 @@ const styles = StyleSheet.create({
   },
   contentContainerStyle: {
     flexGrow: 1,
-    // justifyContent: 'space-between',
   },
   flatListContainer: {flexGrow: 0, marginBottom: 24},
   initialsContainer: {
@@ -25,9 +24,17 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
     color: COLORS.white,
   },
+  replyContainer: {
+    marginLeft: 60,
+  },
+  userCommentContainer: {
+    flex: 1,
+    marginTop: 12,
+  },
+  userContainer: {
+    flexDirection: 'row',
+  },
   activeCommentContainer: {
-    // width: 280,
-    // flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginHorizontal: 30,
@@ -43,7 +50,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   flexRow: {
-    // flex: 1,
     flexDirection: 'row',
     alignSelf: 'flex-end',
   },
@@ -66,7 +72,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain', // Adjust the image to fit within the bounds
+    resizeMode: 'contain',
   },
 });
 

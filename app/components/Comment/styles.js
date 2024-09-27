@@ -7,6 +7,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
   },
+  flex1: {
+    flex: 1,
+  },
   buttonStyle: {
     width: 'auto',
     height: 'auto',

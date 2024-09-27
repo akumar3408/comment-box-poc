@@ -1,5 +1,5 @@
-import React, {useCallback} from 'react';
-import {View, Text, FlatList} from 'react-native';
+import React, {useCallback, useState, useEffect} from 'react';
+import {View, FlatList, NativeModules, Text} from 'react-native';
 
 import {useSelector} from 'react-redux';
 import 'react-native-get-random-values';
@@ -10,8 +10,26 @@ import UserPreview from '../../components/UserPreview';
 import styles from './styles';
 const Home = ({navigation}) => {
   const users = useSelector(state => state.home.users);
+  const [deviceNameVal, setDeviceNameVal] = useState('');
 
-  console.log(users);
+  const {CustomDeviceInfo} = NativeModules;
+
+  useEffect(() => {
+    const fetchDeviceName = async () => {
+      if (CustomDeviceInfo) {
+        try {
+          const deviceName = await CustomDeviceInfo.getDeviceName();
+          setDeviceNameVal(deviceName);
+        } catch (error) {
+          console.error('Error fetching device name:', error);
+        }
+      } else {
+        console.error('CustomDeviceInfo module is not available');
+      }
+    };
+
+    fetchDeviceName();
+  }, [CustomDeviceInfo]);
 
   const addUserHandler = useCallback(() => {
     navigation.navigate('AddUser');
@@ -19,17 +37,20 @@ const Home = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <CustomButton title={'Add User'} onPress={addUserHandler} />
-      <View style={{marginTop: 12}}>
-        <FlatList
-          data={users}
-          renderItem={({item}) => (
-            <UserPreview item={item} navigation={navigation} />
-          )}
-          keyExtractor={item => item.id}
-          // extraData={selectedId}
-        />
+      <View style={styles.contentContainer}>
+        <CustomButton title={'Add User'} onPress={addUserHandler} />
+        <View style={styles.contentContainer}>
+          <FlatList
+            data={users}
+            renderItem={({item}) => (
+              <UserPreview item={item} navigation={navigation} />
+            )}
+            keyExtractor={item => item.id}
+            contentContainerStyle={styles.flatListContentContainer}
+          />
+        </View>
       </View>
+      <Text style={styles.deviceStyle}>{deviceNameVal}</Text>
     </View>
   );
 };
